@@ -104,11 +104,6 @@ export default function GameBoard() {
   const [error, setError] = React.useState<string>("");
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
 
-  const handleError = () => {
-    setError("An unexpected error occurred. Please try again.");
-    setModalOpen(true);
-  };
-
   const handleClose = () => {
     setModalOpen(false);
   };
@@ -205,7 +200,6 @@ export default function GameBoard() {
           RESET
         </Button>
       )}
-      <Button onClick={handleError}>Trigger Error</Button>
       <ErrorModal open={modalOpen} error={error} handleClose={handleClose} />
     </Box>
   );
