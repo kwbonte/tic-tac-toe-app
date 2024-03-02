@@ -82,14 +82,16 @@ const createNewGame = async (playerXName: string, playerOName: string) => {
     if (!response.ok) {
       const errorResponse = await response.json();
       const errorMessage = errorResponse.error || "An unknown error occurred";
-      console.error(errorMessage);
-      throw new Error(errorMessage);
+      throw new APIError(errorMessage);
     }
     const newGame = await response.json();
     return newGame;
   } catch (error) {
-    console.error("Failed to start new game:", error);
-    throw error; // Re-throw the error to be handled by the caller
+    if (error instanceof APIError) {
+      throw error;
+    } else {
+      throw new APIError("An unexpected error occurred"); // forcing a remap so it can be consumed
+    }
   }
 };
 
@@ -148,9 +150,10 @@ export default function GameBoard() {
       setIsGameInProgress(true);
       setCurrentTurn("X");
     } catch (error) {
-      console.error("Failed to start new game:", error);
-      // Handle errors as needed, such as displaying an error message to the user
-      // For example, display errors via a modal
+      if (error instanceof APIError) {
+        setError(error.message);
+        setModalOpen(true);
+      }
     }
   };
 
