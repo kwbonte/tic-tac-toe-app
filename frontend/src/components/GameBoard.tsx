@@ -43,7 +43,7 @@ const recordMove = async (
 
     const moveData = await response.json();
     console.log("Move recorded:", moveData);
-
+    return moveData;
     // Handle successful move recording here
     // For example, update the game state or UI based on the response
   } catch (error) {
@@ -83,11 +83,11 @@ export default function GameBoard() {
   const [isGameInProgress, setIsGameInProgress] = React.useState(false); // Initialize the game state as not in progress
   const [currentTurn, setCurrentTurn] = React.useState("X");
   const [gameId, setGameId] = React.useState(0);
-  const handleCellClick = (id: number) => {
+  const handleCellClick = async (id: number) => {
     // Handle cell click here. For instance, update the game state or toggle turn
     console.log(`Cell clicked: ${id}, ${currentTurn}`);
     try {
-      const result = recordMove(gameId, currentTurn, id);
+      const result = await recordMove(gameId, currentTurn, id);
       console.log("result from onclick", result);
     } catch (err) {
       throw err;
