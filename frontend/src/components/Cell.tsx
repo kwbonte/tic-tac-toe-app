@@ -36,16 +36,13 @@ export const Cell: React.FC<CellProps> = ({
   onClick,
 }) => {
   const [cellValue, setCellvalue] = useState("");
-  const handleClick = () => {
-    console.log("hi1");
+  const handleClick = async () => {
     if (!disabled) {
       try {
-        console.log("hi2");
-        onClick(id);
-        console.log("hi3");
+        await onClick(id);
+        console.log("onclick succeeded", id, currentTurn);
         setCellvalue(currentTurn);
       } catch (err: any) {
-        console.log("hi4");
         console.error(err);
       }
     }

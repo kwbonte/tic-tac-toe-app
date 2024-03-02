@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { Cell } from "./Cell";
 import { Button } from "@mui/material";
+import ErrorModal from "./ErrorModal";
 
 // Customizing grid container for tic-tac-toe style borders
 const StyledGridContainer = styled(Grid)(({ theme }) => ({
@@ -18,6 +19,13 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
     borderBottom: "none", // Remove bottom border for bottom items
   },
 }));
+
+class APIError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "APIError";
+  }
+}
 
 const recordMove = async (
   gameId: number,
@@ -38,7 +46,9 @@ const recordMove = async (
     });
 
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      const errorResponse = await response.json();
+      const errorMessage = errorResponse.error || "An unknown error occurred";
+      throw new APIError(errorMessage);
     }
 
     const moveData = await response.json();
@@ -47,8 +57,11 @@ const recordMove = async (
     // Handle successful move recording here
     // For example, update the game state or UI based on the response
   } catch (error) {
-    console.error("Error recording move:", error);
-    // Handle errors, such as displaying an error message to the user
+    if (error instanceof APIError) {
+      throw error;
+    } else {
+      throw new APIError("An unexpected error occurred"); // forcing a remap so it can be consumed
+    }
   }
 };
 
@@ -67,12 +80,13 @@ const createNewGame = async (playerXName: string, playerOName: string) => {
     });
 
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      const errorResponse = await response.json();
+      const errorMessage = errorResponse.error || "An unknown error occurred";
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
-
     const newGame = await response.json();
-    console.log("New game started:", newGame);
-    return newGame; // Return the new game data
+    return newGame;
   } catch (error) {
     console.error("Failed to start new game:", error);
     throw error; // Re-throw the error to be handled by the caller
@@ -85,25 +99,39 @@ export default function GameBoard() {
   const [gameId, setGameId] = React.useState(0);
   const [clearAndResetButtonShow, setClearAndResetButtonShow] =
     React.useState(false);
+  const [error, setError] = React.useState<string>("");
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+
+  const handleError = () => {
+    setError("An unexpected error occurred. Please try again.");
+    setModalOpen(true);
+  };
+
+  const handleClose = () => {
+    setModalOpen(false);
+  };
   const handleCellClick = async (id: number) => {
     // Handle cell click here. For instance, update the game state or toggle turn
-    console.log(`Cell clicked: ${id}, ${currentTurn}`);
     try {
       const result = await recordMove(gameId, currentTurn, id);
-      console.log("result from onclick", result);
-      if (result.gameStatus !== "in_progress") {
+      // evaluate if done
+      if (result?.gameStatus !== "in_progress") {
         console.log("DONE");
         setClearAndResetButtonShow(true);
-        setIsGameInProgress(false);
       }
-    } catch (err) {
-      throw err;
-    }
-    // iterate turn
-    if (currentTurn === "X") {
-      setCurrentTurn("O");
-    } else {
-      setCurrentTurn("X");
+      // iterate turn
+      if (currentTurn === "X") {
+        setCurrentTurn("O");
+      } else {
+        setCurrentTurn("X");
+      }
+    } catch (err: any) {
+      if (err instanceof APIError) {
+        setError(err.message);
+        setModalOpen(true);
+      }
+
+      throw err; // Re-throw the error to be handled by the caller
     }
   };
 
@@ -128,6 +156,10 @@ export default function GameBoard() {
 
   const resetBoard = () => {
     console.log("reset board selected");
+    setGameId(0);
+    setIsGameInProgress(false);
+    setClearAndResetButtonShow(false);
+    // TODO: figure out how to clear the board
   };
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -170,6 +202,8 @@ export default function GameBoard() {
           RESET
         </Button>
       )}
+      <Button onClick={handleError}>Trigger Error</Button>
+      <ErrorModal open={modalOpen} error={error} handleClose={handleClose} />
     </Box>
   );
 }
