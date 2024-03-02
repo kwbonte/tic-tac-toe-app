@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Paper } from "@mui/material";
 import { experimentalStyled as styled } from "@mui/material/styles";
-
+interface CellStyledProps {
+  currentTurn: string;
+}
 // Cell style
-const CellStyled = styled(Paper)(({ theme }) => ({
+const CellStyled = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== "currentTurn", // Prevents the prop from being forwarded to the DOM element
+})<CellStyledProps>(({ theme, currentTurn }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
   display: "flex",
@@ -17,7 +21,7 @@ const CellStyled = styled(Paper)(({ theme }) => ({
   boxShadow: "none",
   transition: "background-color 0.3s",
   "&:hover": {
-    backgroundColor: "red",
+    backgroundColor: currentTurn === "X" ? "red" : "blue",
     cursor: "pointer",
   },
 }));
@@ -57,6 +61,7 @@ export const Cell: React.FC<CellProps> = ({
   };
   return (
     <CellStyled
+      currentTurn={currentTurn}
       onClick={handleClick}
       style={{ pointerEvents: disabled ? "none" : undefined }}
     >
