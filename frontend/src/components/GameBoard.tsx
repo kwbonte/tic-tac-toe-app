@@ -3,16 +3,8 @@ import { experimentalStyled as styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
-  ...theme.typography.body2,
-  padding: theme.spacing(2),
-  textAlign: "center",
-  color: theme.palette.text.secondary,
-  aspectRatio: "1 / 1", // Ensure the item is always square
-  border: `1px solid ${theme.palette.divider}`, // Apply border
-}));
+import { Cell } from "./Cell";
+import { Button } from "@mui/material";
 
 // Customizing grid container for tic-tac-toe style borders
 const StyledGridContainer = styled(Grid)(({ theme }) => ({
@@ -29,6 +21,24 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
 }));
 
 export default function GameBoard() {
+  const [isGameInProgress, setIsGameInProgress] = React.useState(false); // Initialize the game state as not in progress
+  const [currentTurn, setCurrentTurn] = React.useState("X");
+  const handleCellClick = (id: number) => {
+    // Handle cell click here. For instance, update the game state or toggle turn
+    console.log(`Cell clicked: ${id}, ${currentTurn}`);
+    // iterate turn
+    if (currentTurn === "X") {
+      setCurrentTurn("O");
+    } else {
+      setCurrentTurn("X");
+    }
+  };
+
+  const startButtonClicked = () => {
+    console.log("startbuttonclicked");
+    setIsGameInProgress(true);
+    setCurrentTurn("X");
+  };
   return (
     <Box sx={{ flexGrow: 1 }}>
       <StyledGridContainer
@@ -38,10 +48,25 @@ export default function GameBoard() {
       >
         {Array.from(Array(9)).map((_, index) => (
           <Grid item xs={2} sm={4} md={4} key={index}>
-            <Item>x</Item>
+            <Cell
+              id={index}
+              currentTurn={currentTurn}
+              disabled={!isGameInProgress}
+              onClick={handleCellClick}
+            />
           </Grid>
         ))}
       </StyledGridContainer>
+      <Button
+        variant="outlined"
+        disabled={isGameInProgress}
+        sx={{
+          mt: 2,
+        }}
+        onClick={startButtonClicked}
+      >
+        Start New Game
+      </Button>
     </Box>
   );
 }
