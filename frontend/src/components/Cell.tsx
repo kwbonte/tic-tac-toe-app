@@ -65,7 +65,7 @@ export const Cell: React.FC<CellProps> = ({
       onClick={handleClick}
       style={{ pointerEvents: disabled ? "none" : undefined }}
     >
-      {cellValue} {/* Display the value here */}
+      {cellValue}
     </CellStyled>
   );
 };

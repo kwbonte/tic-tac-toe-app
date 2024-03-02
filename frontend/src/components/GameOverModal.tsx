@@ -67,7 +67,6 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
       <DialogTitle
         id="win-tie-dialog-title"
         sx={{
-          // Apply conditional background color
           textAlign: "center",
           fontSize: "32px",
         }}
@@ -76,7 +75,6 @@ const GameOverModal: React.FC<GameOverModalProps> = ({
       </DialogTitle>
       <DialogContent
         sx={{
-          // Apply conditional background color
           width: "300px",
           textAlign: "center",
         }}

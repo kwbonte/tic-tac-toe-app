@@ -6,6 +6,7 @@ import { Cell } from "./Cell";
 import { Button } from "@mui/material";
 import ErrorModal from "./ErrorModal";
 import GameOverModal from "./GameOverModal";
+import { APIError } from "./APIError";
 
 // Customizing grid container for tic-tac-toe style borders
 const StyledGridContainer = styled(Grid)(({ theme }) => ({
@@ -20,13 +21,6 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
     borderBottom: "none", // Remove bottom border for bottom items
   },
 }));
-
-class APIError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "APIError";
-  }
-}
 
 const recordMove = async (
   gameId: number,
