@@ -70,7 +70,7 @@ app.post("/moves", async (req: Request, res: Response) => {
 
     // Reconstruct the board state
     const board = await getBoardState(game_id);
-
+    console.log(board);
     // Evaluate the game status and update next turn
     const status: GameStatus = evaluateGameStatus(board);
     const nextTurn = player_type === "X" ? "O" : "X";
