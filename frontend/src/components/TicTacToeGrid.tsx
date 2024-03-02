@@ -11,8 +11,8 @@ const TicTacToeGrid: React.FC = () => {
   // Dynamically calculate the grid size based on viewport size to maintain aspect ratio
   function calculateGridSize(): number {
     // Use 90vw as base size to give some margin around the grid, or adjust as needed
-    const sizeBasedOnWidth = window.innerWidth * 0.8;
-    const sizeBasedOnHeight = window.innerHeight * 0.8;
+    const sizeBasedOnWidth = window.innerWidth * 0.55;
+    const sizeBasedOnHeight = window.innerHeight * 0.55;
     // Choose the smaller of the two to ensure the grid fits within the viewport and maintains a square shape
     return Math.min(sizeBasedOnWidth, sizeBasedOnHeight);
   }
