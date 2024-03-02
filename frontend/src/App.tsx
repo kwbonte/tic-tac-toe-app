@@ -1,6 +1,6 @@
 import React from "react";
 import { CssBaseline, Container, Typography } from "@mui/material";
-import TicTacToeGrid from "./components/TicTacToeGrid";
+import GameBoard from "./components/GameBoard";
 
 const App: React.FC = () => {
   return (
@@ -17,7 +17,7 @@ const App: React.FC = () => {
         <Typography variant="h2" gutterBottom>
           Tic Tac Toe
         </Typography>
-        <TicTacToeGrid />
+        <GameBoard />
       </Container>
     </>
   );
