@@ -6,6 +6,14 @@ const app = express();
 const port = 3001;
 
 app.use(express.json());
+const cors = require("cors");
+
+// Use it before all route definitions
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow only your frontend origin to make requests
+  })
+);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { experimentalStyled as styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import { Cell } from "./Cell";
 import { Button } from "@mui/material";
@@ -23,6 +22,7 @@ const StyledGridContainer = styled(Grid)(({ theme }) => ({
 export default function GameBoard() {
   const [isGameInProgress, setIsGameInProgress] = React.useState(false); // Initialize the game state as not in progress
   const [currentTurn, setCurrentTurn] = React.useState("X");
+  const [gameId, setGameId] = React.useState(0);
   const handleCellClick = (id: number) => {
     // Handle cell click here. For instance, update the game state or toggle turn
     console.log(`Cell clicked: ${id}, ${currentTurn}`);
@@ -34,8 +34,41 @@ export default function GameBoard() {
     }
   };
 
-  const startButtonClicked = () => {
+  const startButtonClicked = async () => {
+    // help me wire in a hit to the
     console.log("startbuttonclicked");
+    // Assuming playerXName and playerOName are already defined in your component's state
+    const playerXName = "Player X"; // Replace with actual state variable or input
+    const playerOName = "Player O"; // Replace with actual state variable or input
+
+    try {
+      const response = await fetch("http://localhost:3001/games", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          player_x_name: playerXName,
+          player_o_name: playerOName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const newGame = await response.json();
+      console.log("New game started:", newGame);
+      // TODO: add in a context for this to survive reload (not doing now to make developing faster)
+      // Update your component's state as necessary based on the response
+      setIsGameInProgress(true);
+      setCurrentTurn(newGame.current_turn); // Assuming you have a state variable for currentTurn
+      // You might also want to reset or update other parts of your game state here
+    } catch (error) {
+      console.error("Failed to start new game:", error);
+      // Handle errors as needed, such as displaying an error message to the user
+      // TODO: Display errors via a modal
+    }
     setIsGameInProgress(true);
     setCurrentTurn("X");
   };
