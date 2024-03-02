@@ -5,6 +5,7 @@ import Grid from "@mui/material/Grid";
 import { Cell } from "./Cell";
 import { Button } from "@mui/material";
 import ErrorModal from "./ErrorModal";
+import GameOverModal from "./GameOverModal";
 
 // Customizing grid container for tic-tac-toe style borders
 const StyledGridContainer = styled(Grid)(({ theme }) => ({
@@ -102,11 +103,21 @@ export default function GameBoard() {
   const [clearAndResetButtonShow, setClearAndResetButtonShow] =
     React.useState(false);
   const [error, setError] = React.useState<string>("");
-  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+  const [errorModalOpen, setErrorModalOpen] = React.useState<boolean>(false);
+  const [openGameOverModal, setGameOverModal] = React.useState(false);
   const [cells, setCells] = React.useState(Array(9).fill(null)); // Example for a 3x3 board
   const [resetFlag, setResetFlag] = React.useState(false);
+  const [gameStatus, setGameStatus] = React.useState<
+    "complete" | "draw" | "in_progress" | ""
+  >("");
+  const playerXName = "Player X"; // Replace with actual state variable or input
+  const playerOName = "Player O"; // Replace with actual state variable or input
+
   const handleClose = () => {
-    setModalOpen(false);
+    setErrorModalOpen(false);
+  };
+  const handleGameOverModalClose = () => {
+    setGameOverModal(false);
   };
   const handleCellClick = async (id: number) => {
     // Handle cell click here. For instance, update the game state or toggle turn
@@ -116,17 +127,20 @@ export default function GameBoard() {
       if (result?.gameStatus !== "in_progress") {
         console.log("DONE");
         setClearAndResetButtonShow(true);
-      }
-      // iterate turn
-      if (currentTurn === "X") {
-        setCurrentTurn("O");
+        setGameStatus(result?.gameStatus);
+        setGameOverModal(true);
       } else {
-        setCurrentTurn("X");
+        // iterate turn
+        if (currentTurn === "X") {
+          setCurrentTurn("O");
+        } else {
+          setCurrentTurn("X");
+        }
       }
     } catch (err: any) {
       if (err instanceof APIError) {
         setError(err.message);
-        setModalOpen(true);
+        setErrorModalOpen(true);
       }
 
       throw err; // Re-throw the error to be handled by the caller
@@ -135,8 +149,6 @@ export default function GameBoard() {
 
   const startButtonClicked = async () => {
     // Assuming playerXName and playerOName are already defined in your component's state
-    const playerXName = "Player X"; // Replace with actual state variable or input
-    const playerOName = "Player O"; // Replace with actual state variable or input
     try {
       const newGame = await createNewGame(playerXName, playerOName);
       // Update your component's state as necessary based on the new game data
@@ -145,10 +157,11 @@ export default function GameBoard() {
       setCurrentTurn(newGame.current_turn); // Assuming you have a state variable for currentTurn
       setIsGameInProgress(true);
       setCurrentTurn("X");
+      setGameStatus("in_progress");
     } catch (error) {
       if (error instanceof APIError) {
         setError(error.message);
-        setModalOpen(true);
+        setErrorModalOpen(true);
       }
     }
   };
@@ -204,7 +217,19 @@ export default function GameBoard() {
           RESET
         </Button>
       )}
-      <ErrorModal open={modalOpen} error={error} handleClose={handleClose} />
+      <ErrorModal
+        open={errorModalOpen}
+        error={error}
+        handleClose={handleClose}
+      />
+      <GameOverModal
+        player1Name={playerXName}
+        player2Name={playerOName}
+        currentTurn={currentTurn}
+        gameStatus={gameStatus}
+        open={openGameOverModal}
+        handleClose={handleGameOverModalClose}
+      />
     </Box>
   );
 }
