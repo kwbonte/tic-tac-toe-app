@@ -53,7 +53,14 @@ app.post("/moves", async (req: Request, res: Response) => {
       return res.status(400).send({ error: `It's not ${player_type}'s turn.` });
     }
 
-    // TODO: make sure there are no overwrites allowed
+    // Then, validate the move is to an unoccupied position
+    const validMove = await ensureMoveIsNotOverwrite(game_id, position);
+    if (!validMove) {
+      return res
+        .status(400)
+        .send({ error: "Invalid move. The position is already occupied." });
+    }
+
     const newMove: Move = (
       await db.query(
         "INSERT INTO moves (game_id, player_type, position, move_time) VALUES ($1, $2, $3, $4) RETURNING *",
@@ -150,4 +157,13 @@ async function checkGameStatus(
     console.error(err.message);
     throw new Error("Failed to check the game status and current turn.");
   }
+}
+
+async function ensureMoveIsNotOverwrite(
+  game_id: number,
+  position: number
+): Promise<boolean> {
+  const board = await getBoardState(game_id);
+  // Check if the position is within the board and unoccupied
+  return board[position] === null;
 }
