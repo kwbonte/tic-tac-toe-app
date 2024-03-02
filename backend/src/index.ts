@@ -53,6 +53,7 @@ app.post("/moves", async (req: Request, res: Response) => {
       return res.status(400).send({ error: `It's not ${player_type}'s turn.` });
     }
 
+    // TODO: make sure there are no overwrites allowed
     const newMove: Move = (
       await db.query(
         "INSERT INTO moves (game_id, player_type, position, move_time) VALUES ($1, $2, $3, $4) RETURNING *",
@@ -62,18 +63,15 @@ app.post("/moves", async (req: Request, res: Response) => {
 
     // Reconstruct the board state
     const board = await getBoardState(game_id);
-    console.log("board", board);
-    // Evaluate the game status
-    const status: GameStatus = evaluateGameStatus(board);
-    console.log("status", status);
 
+    // Evaluate the game status and update next turn
+    const status: GameStatus = evaluateGameStatus(board);
+    const nextTurn = player_type === "X" ? "O" : "X";
     // Update the game status in the database if the game is complete or a draw
-    if (status !== "in_progress") {
-      await db.query("UPDATE games SET game_status = $1 WHERE game_id = $2", [
-        status,
-        game_id,
-      ]);
-    }
+    await db.query(
+      "UPDATE games SET game_status = $1, current_turn = $2 WHERE game_id = $3",
+      [status, nextTurn, game_id]
+    );
     res.json({ move: newMove, gameStatus: status });
   } catch (err: any) {
     console.error(err.message);
