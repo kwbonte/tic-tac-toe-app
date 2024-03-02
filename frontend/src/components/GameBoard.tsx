@@ -103,7 +103,8 @@ export default function GameBoard() {
     React.useState(false);
   const [error, setError] = React.useState<string>("");
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
-
+  const [cells, setCells] = React.useState(Array(9).fill(null)); // Example for a 3x3 board
+  const [resetFlag, setResetFlag] = React.useState(false);
   const handleClose = () => {
     setModalOpen(false);
   };
@@ -157,7 +158,8 @@ export default function GameBoard() {
     setGameId(0);
     setIsGameInProgress(false);
     setClearAndResetButtonShow(false);
-    // TODO: figure out how to clear the board
+    setCells(Array(9).fill(null)); // Reset the board state
+    setResetFlag(!resetFlag); // Toggle the resetFlag to signal a board reset
   };
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -166,13 +168,15 @@ export default function GameBoard() {
         spacing={{ xs: 0.5, md: 0.5 }}
         columns={{ xs: 4, sm: 8, md: 12 }}
       >
-        {Array.from(Array(9)).map((_, index) => (
+        {cells.map((cell, index) => (
           <Grid item xs={2} sm={4} md={4} key={index}>
             <Cell
+              key={index}
               id={index}
               currentTurn={currentTurn}
               disabled={!isGameInProgress}
               onClick={handleCellClick}
+              resetFlag={resetFlag} // Pass resetFlag to each Cell
             />
           </Grid>
         ))}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Paper } from "@mui/material";
 import { experimentalStyled as styled } from "@mui/material/styles";
 
@@ -26,6 +26,7 @@ interface CellProps {
   id: number;
   currentTurn: string; // Add a value prop
   disabled: boolean;
+  resetFlag: boolean;
   onClick: (id: number) => void;
 }
 
@@ -33,9 +34,16 @@ export const Cell: React.FC<CellProps> = ({
   id,
   currentTurn,
   disabled,
+  resetFlag,
   onClick,
 }) => {
   const [cellValue, setCellvalue] = useState("");
+  // Use an effect to listen for changes to resetFlag
+  useEffect(() => {
+    // Reset cellValue when resetFlag changes
+    setCellvalue("");
+  }, [resetFlag]); // Listen for changes to resetFlag
+
   const handleClick = async () => {
     if (!disabled) {
       try {
