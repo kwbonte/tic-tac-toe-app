@@ -83,12 +83,19 @@ export default function GameBoard() {
   const [isGameInProgress, setIsGameInProgress] = React.useState(false); // Initialize the game state as not in progress
   const [currentTurn, setCurrentTurn] = React.useState("X");
   const [gameId, setGameId] = React.useState(0);
+  const [clearAndResetButtonShow, setClearAndResetButtonShow] =
+    React.useState(false);
   const handleCellClick = async (id: number) => {
     // Handle cell click here. For instance, update the game state or toggle turn
     console.log(`Cell clicked: ${id}, ${currentTurn}`);
     try {
       const result = await recordMove(gameId, currentTurn, id);
       console.log("result from onclick", result);
+      if (result.gameStatus !== "in_progress") {
+        console.log("DONE");
+        setClearAndResetButtonShow(true);
+        setIsGameInProgress(false);
+      }
     } catch (err) {
       throw err;
     }
@@ -118,6 +125,10 @@ export default function GameBoard() {
       // For example, display errors via a modal
     }
   };
+
+  const resetBoard = () => {
+    console.log("reset board selected");
+  };
   return (
     <Box sx={{ flexGrow: 1 }}>
       <StyledGridContainer
@@ -136,16 +147,29 @@ export default function GameBoard() {
           </Grid>
         ))}
       </StyledGridContainer>
-      <Button
-        variant="outlined"
-        disabled={isGameInProgress}
-        sx={{
-          mt: 2,
-        }}
-        onClick={startButtonClicked}
-      >
-        Start New Game
-      </Button>
+      {!clearAndResetButtonShow && (
+        <Button
+          variant="outlined"
+          disabled={isGameInProgress}
+          sx={{
+            mt: 2,
+          }}
+          onClick={startButtonClicked}
+        >
+          Start New Game
+        </Button>
+      )}
+      {clearAndResetButtonShow && (
+        <Button
+          variant="outlined"
+          sx={{
+            mt: 2,
+          }}
+          onClick={resetBoard}
+        >
+          RESET
+        </Button>
+      )}
     </Box>
   );
 }
