@@ -37,9 +37,17 @@ export const Cell: React.FC<CellProps> = ({
 }) => {
   const [cellValue, setCellvalue] = useState("");
   const handleClick = () => {
+    console.log("hi1");
     if (!disabled) {
-      setCellvalue(currentTurn);
-      onClick(id);
+      try {
+        console.log("hi2");
+        onClick(id);
+        console.log("hi3");
+        setCellvalue(currentTurn);
+      } catch (err: any) {
+        console.log("hi4");
+        console.error(err);
+      }
     }
   };
   return (
